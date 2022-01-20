@@ -1,0 +1,142 @@
+#include <bits/stdc++.h>
+#define forn(i, n) for (int i = 0; i < n; i++)
+using namespace std;
+
+int board[4][4];
+int n = 4;
+int dirLine[] = {1, 0, -1, 0};
+int dirColumn[] = {0, 1, 0, -1};
+
+pair<int, int> generateRandomatunuccopied()
+{
+    int occupied = 1;
+    int row;
+    int column;
+    while (occupied)
+    {
+        row = rand() % 4;
+        column = rand() % 4;
+        if (board[row][column] == 0)
+        {
+            occupied = 0;
+        }
+    }
+    return make_pair(row, column);
+}
+void addpiece()
+{
+    pair<int, int> pos = generateRandomatunuccopied();
+    board[pos.first][pos.second] = 2;
+}
+void newGame()
+{
+    forn(i, n)
+    {
+        forn(j, n)
+        {
+            board[i][j] = 0;
+        }
+    }
+    addpiece();
+}
+
+void printUI()
+{
+    system("cls");
+    forn(i, n)
+    {
+        forn(j, n)
+        {
+            if (board[i][j] == 0)
+            {
+                cout << setw(4) << ".";
+            }
+            else
+            {
+                cout << setw(4) << board[i][j] << " ";
+            }
+        }
+        cout << endl;
+    }
+    cout << "n: new game, w: up, s: down, d: right, a: left, q: quit" << endl;
+}
+bool canMove(int line, int column, int nextLine, int nextColumn)
+{
+    if (nextLine >= n or nextLine < 0 or nextColumn >= n or nextColumn < 0 or board[line][column] != board[nextLine][nextColumn] and board[nextLine][nextColumn] != 0)
+    {
+        return false;
+    }
+    return true;
+}
+void applyMove(int direction)
+{
+    int startline = 0;
+    int startColumn = 0;
+    int lineStep = 1;
+    int columnStep = 1;
+    if (direction == 0)
+    {
+        startline = 3;
+        lineStep = -1;
+    }
+    if (direction == 1)
+    {
+        startColumn = 3;
+        columnStep = -1;
+    }
+    int movepossible = 0;
+    int canAddPiece = 0;
+    do
+    {
+        movepossible = 0;
+        for (int i = startline; i >= 0 and i < n; i += lineStep)
+        {
+            for (int j = startColumn; j >= 0 and j < n; j += columnStep)
+            {
+                int nextI = i + dirLine[direction];
+                int nextJ = j + dirColumn[direction];
+                if (board[i][j] and canMove(i, j, nextI, nextJ))
+                {
+                    board[nextI][nextJ] += board[i][j];
+                    board[i][j] = 0;
+                    movepossible = canAddPiece = 1;
+                }
+            }
+        }
+        printUI();
+    } while (movepossible);
+
+    if (canAddPiece)
+    {
+        addpiece();
+    }
+}
+
+int32_t main()
+{
+    srand(time(0));
+    char values[128];
+    values['s'] = 0;
+    values['d'] = 1;
+    values['w'] = 2;
+    values['a'] = 3;
+    while (true)
+    {
+        printUI();
+        char command;
+        cin >> command;
+        if (command == 'n')
+        {
+            newGame();
+        }
+        else if (command == 'q')
+        {
+            break;
+        }
+        else
+        {
+            int currentDir = values[command];
+            applyMove(currentDir);
+        }
+    }
+}
